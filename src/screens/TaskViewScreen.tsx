@@ -1,8 +1,10 @@
 import React, {FC, useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {WIDTH} from 'utils/dimension';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import FeatherIcon from 'react-native-vector-icons/Feather';
+
 import Calendar from 'components/Calendar';
+
+
 
 interface IProps {}
 
@@ -13,11 +15,18 @@ interface IProps {}
 
 const TaskViewScreen: FC<IProps> = props => {
   const [selected, setSelected] = useState<any>('');
+  
 
   const {container, headerStyle,} = styles;
   return (
     <View style={container}>
       <View style={headerStyle}>
+     
+      <FeatherIcon
+                name="at-sign"
+                size={30}
+                
+              />
         
       </View>
       <Calendar onSelectDate={setSelected} selected={selected} />

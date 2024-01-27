@@ -2,6 +2,7 @@
 import React, { FC } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import Root from './src/Root'
+import { NavigationContainer } from '@react-navigation/native'
 
 interface IProps {}
 
@@ -15,7 +16,8 @@ interface IProps {}
 
 const { container } = styles
  return(
-  <Root/>
+<Root/>
+  
   )
 }
 
