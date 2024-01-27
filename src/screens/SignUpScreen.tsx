@@ -13,7 +13,7 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {WIDTH, HEIGHT} from 'utils/dimension';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import  Icon from 'react-native-vector-icons/AntDesign';
+import FeatherIcon from 'react-native-vector-icons/Feather'
 
 
 interface IProps {}
@@ -30,10 +30,11 @@ const SignUpScreen: FC<IProps> = props => {
     return emailRegex.test(email);
   };
   
-  const isPasswordValid = (password: string): boolean => {
-    // Regular expression for a strong password
-    const passwordRegex = /^(?=.*[a-z])(?=.*\d)(?=.*[@$!%^*?&])[A-Za-z\d@$!%^*?&]{8,}$/;
-  
+
+
+  const isPasswordValid = (email: string): boolean => {
+    // Regular expression for a simple password format
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return passwordRegex.test(password);
   };
   
@@ -42,6 +43,9 @@ const SignUpScreen: FC<IProps> = props => {
   const [email, setEmail] = useState<any>('');
   const [password, setPassword] = useState<any>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const isFormValid = () => {
+    return isEmailValid(email) && isPasswordValid(password);
+  };
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -55,8 +59,11 @@ const SignUpScreen: FC<IProps> = props => {
     askView1,
     button,
     subhead1,
-    enterText,
-    enterTextStyle,
+    enterTextEmail,
+    enterTextEmailStyle,
+    enterTextPassword,
+    enterTextPasswordStyle,
+    underlineStyle,
     buttonStyle,
   } = styles;
   return (
@@ -75,9 +82,9 @@ const SignUpScreen: FC<IProps> = props => {
         <View style={askView1}>
           <Text style={subhead1}>YOUR EMAIL</Text>
         </View>
-        <View style={enterText}>
+        <View style={enterTextEmail}>
           <TextInput
-            style={enterTextStyle}
+            style={enterTextEmailStyle}
             placeholder="Your email here"
             inputMode="email"
             placeholderTextColor="lightgrey"
@@ -94,35 +101,41 @@ const SignUpScreen: FC<IProps> = props => {
         <View style={askView1}>
           <Text style={subhead1}>YOUR PASSWORD</Text>
         </View>
-        <View style={enterText}>
+         <View style={underlineStyle}> 
+        <View style={enterTextPassword}>
+        
           <TextInput
-            style={enterTextStyle}
+            style={enterTextPasswordStyle}
             placeholder="Your Password Here"
             secureTextEntry={!showPassword}
             placeholderTextColor="lightgrey"
-            underlineColorAndroid="black"
+            // underlineColorAndroid="black"
             multiline={false}
             onChangeText={text => setPassword(text)}
             value={password}
           />
-          {/* <TouchableOpacity onPress={togglePasswordVisibility}>
-          <Icon
-            name={showPassword ? "eye": "eye-off"}
-            size={40}
-            color="red"
-          />
+           <TouchableOpacity onPress={togglePasswordVisibility} style={{ alignItems: 'center' }}>
+           <FeatherIcon
+                 name={showPassword ? 'eye-off' : 'eye'}
+                 style={{
+                  fontSize: 30,
+                  color: 'red',
+                  marginLeft: showPassword ? 90 : 60,
+                }}
+              />
           <Text>{showPassword ? 'Hide' : 'Show'}</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity> 
         </View>
+         </View> 
         {password.length > 0 && !isPasswordValid(password) && (
           <Text style={{color: 'red', marginLeft: 25}}>
-            Invalid Password
+            Invalid Password Format
           </Text>
         )}
         <TouchableOpacity
           style={button}
           onPress={() => navigation.navigate('UserInfoScreen')}
-          disabled={!isEmailValid(email)}>
+          disabled={!isFormValid()}>
           <Text style={buttonStyle}>Continue</Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -160,6 +173,9 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 45,
     fontWeight: '500',
+  },
+  underlineStyle: {
+    width:350
   },
   subhead: {
     fontSize: 18,
@@ -200,18 +216,35 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     textTransform: 'uppercase',
   },
-  enterText: {
+  enterTextEmail: {
     marginTop: 25,
     width: 350,
     marginLeft: 25,
     fontWeight: '500',
     textTransform: 'lowercase',
   },
-  enterTextStyle: {
+  enterTextEmailStyle: {
     color: 'black',
     fontWeight: '400',
     fontSize: 20,
     textTransform: 'lowercase',
+  },
+  enterTextPassword: {
+    marginTop: 25,
+    width: 350,
+    marginLeft: 25,
+    fontWeight: '500',
+    flexDirection:'row',
+    // alignItems: 'center', // Add this line to align items in the center
+    borderBottomWidth: 1, // Add this line for the underline effect
+    borderBottomColor: 'black',
+  
+  },
+  enterTextPasswordStyle: {
+    color: 'black',
+    fontWeight: '400',
+    fontSize: 20,
+    
   },
   buttonStyle: {
     fontSize: 20,
@@ -219,6 +252,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     color: 'white',
   },
+ 
 });
 
 export default SignUpScreen;

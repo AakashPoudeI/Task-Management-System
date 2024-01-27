@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {WIDTH} from 'utils/dimension';
 
-import ImagePicker from 'react-native-image-crop-picker';
+import ImageCropPicker from 'react-native-image-crop-picker';
 
 import VectorImage from 'react-native-vector-image';
 import {useNavigation} from '@react-navigation/native';
@@ -31,9 +31,9 @@ const UserInfoScreen: FC<IProps> = props => {
 
   const handleImageUpload = async () => {
     try {
-      const image = await ImagePicker.openPicker({
-        width: 300,
-        height: 400,
+      const image = await ImageCropPicker.openPicker({
+        width: 200,
+        height: 200,
         cropping: true,
         mediaType: 'photo',
       });
@@ -58,23 +58,28 @@ const UserInfoScreen: FC<IProps> = props => {
   } = styles;
   return (
     <KeyboardAwareScrollView style={container}>
+      {!selectedImage && (
       <View style={svgContainer}>
-        <VectorImage
-          source={require('../assets/images/tasks-boss-svgrepo-com.dark.svg')}
-          style={svgStyle}
-        />
-      </View>
+        
+        
+          <VectorImage
+            source={require('../assets/images/tasks-boss-svgrepo-com.dark.svg')}
+            style={svgStyle}
+          />
+        
+      </View>)}
 
       <View style={imageView}>
-        <TouchableOpacity>
-          <Text  onPress={handleImageUpload} style={imageView}>Upload Image</Text>
-        </TouchableOpacity>
+      
         {selectedImage && selectedImage.path && (
     <Image
       source={{ uri: selectedImage.path }}
       style={image}
     />
   )}
+  <TouchableOpacity>
+          <Text  onPress={handleImageUpload} style={imageView}>Upload Image</Text>
+        </TouchableOpacity>
       </View>
       <View style={askView1}>
         <Text style={subhead1}>FIRST NAME</Text>
@@ -99,7 +104,7 @@ const UserInfoScreen: FC<IProps> = props => {
       <TouchableOpacity
         style={
           button
-        } onPress={()=> navigation.navigate('TaskViewScreen')}
+        } onPress={()=> navigation.navigate('TaskViewScreen',{selectedImage})}
       >
         <Text style={buttonStyle}>Continue</Text>
       </TouchableOpacity>
@@ -123,13 +128,14 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     marginTop: 20,
+    borderRadius:60,
   },
   svgContainer: {
     marginTop: 40,
     borderColor: 'red',
     borderRadius: 65,
 
-    backgroundColor: 'cyan',
+    borderEndColor:'cyan',
     width: 130,
     height: 130,
     alignSelf: 'center',

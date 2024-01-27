@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {WIDTH, HEIGHT} from 'utils/dimension';
+import FeatherIcon from 'react-native-vector-icons/Feather'
 
 interface IProps {}
 
@@ -23,6 +24,12 @@ const LoginPasswordScreen: FC<IProps> = props => {
   const route=useRoute<any>();
   const email=route.params?.email|| ""
   const navigation = useNavigation<any>();
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+ 
   const {
     container,
     textStyle,
@@ -36,11 +43,12 @@ const LoginPasswordScreen: FC<IProps> = props => {
     enterText,
     enterTextStyle,
     buttonStyle,
+    underlineStyle
   } = styles;
   return (
     <SafeAreaView style={container}>
       <TouchableOpacity
-        onPress={() => navigation.navigate('SignUpScreen' )}>
+        onPress={() => navigation.navigate('SignUpScreen')}>
         <Text style={textStyle}>Create Account</Text>
       </TouchableOpacity>
       <View style={headingTextView}>
@@ -52,21 +60,32 @@ const LoginPasswordScreen: FC<IProps> = props => {
       <View style={askView1}>
         <Text style={subhead1}>YOUR PASSWORD</Text>
       </View>
+      <View style={underlineStyle}>
       <View style={enterText}>
         <TextInput
           style={enterTextStyle}
           placeholder="Your Password Here"
-          secureTextEntry={true}
+          secureTextEntry={!showPassword}
           placeholderTextColor="lightgrey"
-          underlineColorAndroid="black"
           multiline={false}
           onChangeText={text => setPassword(text)}
-          value={password}
-        />
+          value={password} />
+        <TouchableOpacity onPress={togglePasswordVisibility} style={{ alignItems: 'center' }}>
+          <FeatherIcon
+            name={showPassword ? 'eye-off' : 'eye'}
+            style={{
+              fontSize: 30,
+              color: 'red',
+              marginLeft: showPassword ? 90 : 60,
+            }} />
+          <Text>{showPassword ? 'Hide' : 'Show'}</Text>
+        </TouchableOpacity>
+        </View>
       </View>
-      <TouchableOpacity
-        style={button}
-        onPress={() => navigation.navigate('TaskViewScreen' )}>
+   <TouchableOpacity
+      style={button}
+      onPress={() => navigation.navigate('UserInfoScreen')}
+    >
         <Text style={buttonStyle}>Continue</Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -87,7 +106,9 @@ const styles = StyleSheet.create({
     marginLeft: 219,
     marginTop: 80,
   },
-
+  underlineStyle: {
+    width:350
+  },
   headingTextView: {
     height: 'auto',
     width: 'auto',
@@ -148,13 +169,15 @@ const styles = StyleSheet.create({
     width: 350,
     marginLeft: 25,
     fontWeight: '400',
-    textTransform: 'lowercase',
+    flexDirection:'row',
+    justifyContent:"space-between",
+    borderBottomWidth: 1, // Add this line for the underline effect
+    borderBottomColor: 'black',
   },
   enterTextStyle: {
     color: 'black',
     fontWeight: '500',
     fontSize: 20,
-    textTransform: 'lowercase',
   },
   buttonStyle: {
     fontSize: 20,
@@ -162,6 +185,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     color: 'white',
   },
+  
 });
 
 export default LoginPasswordScreen;
