@@ -1,13 +1,19 @@
-import React from 'react';
+import React, {FC} from 'react';
 import { View, StatusBar, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import AddTaskScreen from 'screens/AddTaskScreen';
 import TaskViewScreen from 'screens/TaskViewScreen';
 
-const Tab = createBottomTabNavigator();
+interface IProps {}
 
-export default function App() {
+/**
+ * @author
+ * @function @TabNav
+ **/
+
+const TabNav: FC<IProps> = props => {
+  const Tab = createBottomTabNavigator();
   return (
     <>
       <StatusBar animated={true} backgroundColor="#5856D6" />
@@ -83,3 +89,4 @@ export default function App() {
 
   );
 }
+ export default TabNav;
