@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     flexDirection:'row',
     justifyContent:"space-between",
-    borderBottomWidth: 1, // Add this line for the underline effect
+    borderBottomWidth: 1, 
     borderBottomColor: 'black',
   },
   enterTextStyle: {

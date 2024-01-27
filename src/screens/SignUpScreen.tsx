@@ -25,7 +25,7 @@ interface IProps {}
 
 const SignUpScreen: FC<IProps> = props => {
   const isEmailValid = (email: string): boolean => {
-    // Regular expression for a simple email format
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
@@ -33,7 +33,7 @@ const SignUpScreen: FC<IProps> = props => {
 
 
   const isPasswordValid = (email: string): boolean => {
-    // Regular expression for a simple password format
+    
     const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return passwordRegex.test(password);
   };
@@ -109,7 +109,7 @@ const SignUpScreen: FC<IProps> = props => {
             placeholder="Your Password Here"
             secureTextEntry={!showPassword}
             placeholderTextColor="lightgrey"
-            // underlineColorAndroid="black"
+            
             multiline={false}
             onChangeText={text => setPassword(text)}
             value={password}
@@ -235,8 +235,8 @@ const styles = StyleSheet.create({
     marginLeft: 25,
     fontWeight: '500',
     flexDirection:'row',
-    // alignItems: 'center', // Add this line to align items in the center
-    borderBottomWidth: 1, // Add this line for the underline effect
+    
+    borderBottomWidth: 1, 
     borderBottomColor: 'black',
   
   },

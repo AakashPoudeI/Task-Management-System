@@ -18,7 +18,7 @@ interface IProps {}
 
 const LoginEmailScreen: FC<IProps> = () => {
   const isEmailValid = (email: string): boolean => {
-    // Regular expression for a simple email format
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };

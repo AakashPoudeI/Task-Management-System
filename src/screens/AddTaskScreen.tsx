@@ -36,7 +36,7 @@ const AddTaskScreen: FC<IProps> = props => {
     if (date) {
       const currentDate = new Date();
       if (date < currentDate) {
-        // Show an alert if the selected date is in the past
+        
         Alert.alert('Invalid Date', 'Please select a future date and time.');
       } else {
         setSelectedDate(date);
@@ -46,13 +46,13 @@ const AddTaskScreen: FC<IProps> = props => {
   };
 
   const handleAddTask = () => {
-    // Here, you can handle the logic to add the task to the selected date
-    // For example, you can call an API or update the state in your component
+    
+    
     console.log('Heading:', heading);
     console.log('Subheading:', subHeading);
     console.log('Task:', task);
     console.log('Selected Date:', selectedDate);
-    // Add your logic to handle the task addition here
+    
   };
 
   const [selected, setSelected] = useState<any>('');
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: 'blue', // Color for the header text
+    color: 'blue', 
   },
   svgStyle: {
     height: 25,
@@ -220,34 +220,34 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderWidth: 1,
     paddingHorizontal: 10,
-    fontSize: 18, // Adjust the font size for subheading
+    fontSize: 18, 
   },
   inputStyle: {
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
     paddingHorizontal: 10,
-    fontSize: 16, // Adjust the font size for heading
+    fontSize: 16, 
   },
   descriptionInputStyle: {
-    height: 80, // Adjust the height for description
+    height: 80, 
     borderColor: 'gray',
     borderWidth: 1,
     paddingHorizontal: 10,
-    fontSize: 14, // Adjust the font size for description
+    fontSize: 14, 
   },
   buttonContainer: {
     width: '80%',
     marginTop: 20,
   },
   createTaskButton: {
-    backgroundColor: 'green', // Color for the Create Task button
+    backgroundColor: 'green', 
     padding: 10,
     alignItems: 'center',
     borderRadius: 8,
   },
   dateButton: {
-    backgroundColor: 'yellow', // Color for the Date button
+    backgroundColor: 'yellow', 
     padding: 10,
     alignItems: 'center',
     borderRadius: 8,

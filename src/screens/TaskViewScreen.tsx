@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     flexDirection: 'row',
     alignItems: 'center',
-    // Add justifyContent to center the items vertically
+    
     justifyContent: 'space-between',
   },
   searchContainer: {
@@ -110,8 +110,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     backgroundColor: 'white',
     borderRadius: 20,
-    // Position the search container to the left side
-    // position: 'absolute',
+    
+    
     left: 0,
   },
   searchStyle: {

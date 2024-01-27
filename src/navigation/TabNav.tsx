@@ -16,7 +16,7 @@ const TabNav: FC<IProps> = props => {
   const Tab = createBottomTabNavigator();
   return (
     <>
-      <StatusBar animated={true} backgroundColor="#5856D6" />
+      {/* <StatusBar animated={true} backgroundColor="#5856D6" /> */}
       <Tab.Navigator
         initialRouteName='TaskViewScreen'
         screenOptions={({ route }) => ({
@@ -47,7 +47,7 @@ const TabNav: FC<IProps> = props => {
                 {/* Outer circle */}
                 <View
                   style={{
-                    backgroundColor: 'slategrey', // Replace 'your-color' with the desired color
+                    backgroundColor: 'slategrey', 
                     borderRadius: 30,
                     width: 60,
                     height: 60,
