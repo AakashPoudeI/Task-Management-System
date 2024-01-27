@@ -1,11 +1,18 @@
 import React, {FC, useState} from 'react';
-import {View, Text, StyleSheet, Image,TextInput,TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import {useRoute} from '@react-navigation/native';
 
 import Calendar from 'components/Calendar';
 import VectorImage from 'react-native-vector-image';
-import ImageCropPicker from 'react-native-image-crop-picker';
+
 interface IProps {}
 
 /**
@@ -35,40 +42,45 @@ const TaskViewScreen: FC<IProps> = props => {
     iconContainer,
     searchContainer,
     textInputStyle,
-    searchStyle
+    searchStyle,
   } = styles;
   return (
     <View style={container}>
       <View style={headerStyle}>
-        {!selecteImage && (
-          <View style={svgContainer}>
-            <VectorImage
-              source={require('../assets/images/tasks-boss-svgrepo-com.dark.svg')}
-              style={svgStyle}
+        {!isSearchActive && (
+          <>
+            {!selecteImage && (
+              <View style={svgContainer}>
+                <VectorImage
+                  source={require('../assets/images/tasks-boss-svgrepo-com.dark.svg')}
+                  style={svgStyle}
+                />
+              </View>
+            )}
+            <View style={imageContainer}>
+              {selecteImage && selecteImage.path && (
+                <Image source={{uri: selecteImage.path}} style={svgStyle} />
+              )}
+            </View>
+          </>
+        )}
+        <View style={searchStyle}>
+          <TouchableOpacity
+            onPress={handleSearchIconPress}
+            style={iconContainer}>
+            <FeatherIcon name="search" style={iconStyle} />
+          </TouchableOpacity>
+        </View>
+        {isSearchActive && (
+          <View style={searchContainer}>
+            <TextInput
+              style={textInputStyle}
+              placeholder="Search..."
+              value={searchText}
+              onChangeText={text => setSearchText(text)}
             />
           </View>
         )}
-        <View style={imageContainer}>
-          {selecteImage && selecteImage.path && (
-            <Image source={{uri: selecteImage.path}} style={svgStyle} />
-          )}
-        </View>
-        <View style={searchStyle}>
-        <TouchableOpacity onPress={handleSearchIconPress} style={iconContainer}>
-        <FeatherIcon name="search" style={iconStyle} />
-      </TouchableOpacity>
-         
-        </View>
-        {isSearchActive && (
-        <View style={searchContainer}>
-          <TextInput
-            style={textInputStyle}
-            placeholder="Search..."
-            value={searchText}
-            onChangeText={(text) => setSearchText(text)}
-          />
-        </View>
-      )}
       </View>
 
       <Calendar onSelectDate={setSelected} selected={selected} />
@@ -82,33 +94,36 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   headerStyle: {
-    marginTop: 40,
+    marginTop: 30,
     marginHorizontal: 10,
     height: 80,
-    backgroundColor: 'aqua',
-    flexDirection: 'row',
-  },
-  searchContainer: {
-    borderBottomWidth: 1,
-    borderColor: 'black',
-    height: 40, // Adjust the height according to your design
+    backgroundColor: 'white',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10, // Add padding for the text input
-    backgroundColor: 'white', // Background color for the search container
-    marginTop: 15,
-    marginLeft: -250,
-    width: 200,
-    borderRadius: 5,
+    // Add justifyContent to center the items vertically
+    justifyContent: 'space-between',
   },
-  searchStyle:{
-    flexDirection:"row"
+  searchContainer: {
+    height: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    // Position the search container to the left side
+    // position: 'absolute',
+    left: 0,
+  },
+  searchStyle: {
+    flexDirection: 'row',
   },
   textInputStyle: {
     fontSize: 16,
-    flex: 1, // Allow the text input to take up the remaining space
-    marginLeft: 8,
-    
+    flex: 1,
+    marginLeft: -300,
+    backgroundColor: 'grey',
+    borderRadius: 10,
+    height: 50,
   },
   svgStyle: {
     height: 25,
@@ -119,7 +134,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
   },
   imageContainer: {
-    borderColor: 'red',
+    borderColor: 'black',
     borderRadius: 65,
 
     width: 50,
@@ -134,10 +149,9 @@ const styles = StyleSheet.create({
   },
   svgContainer: {
     borderColor: 'black',
-    borderWidth: 3,
+    borderWidth: 1,
     borderRadius: 65,
-    marginTop:15,
-
+    marginLeft: 10,
     backgroundColor: 'white',
     width: 50,
     height: 50,
@@ -145,12 +159,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconStyle: {
-    fontSize: 30,
-    color: 'red',
-    alignSelf:'center',
-    marginTop:8,
-    marginRight:2.5,
-    
+    fontSize: 25,
+    color: 'black',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginTop: 9,
+    marginRight: 2.5,
   },
   iconContainer: {
     backgroundColor: 'white',
@@ -159,9 +173,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     borderColor: 'black',
     borderWidth: 1,
-    marginLeft: 170,
-
-    alignSelf: 'center',
   },
 });
 

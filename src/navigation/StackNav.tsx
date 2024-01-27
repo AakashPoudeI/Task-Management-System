@@ -6,6 +6,8 @@ import LoginPasswordScreen from 'screens/LoginPasswordScreen';
 import SignUpScreen from 'screens/SignUpScreen';
 import UserInfoScreen from 'screens/UserInfoScreen';
 import TaskViewScreen from 'screens/TaskViewScreen';
+import AddTaskScreen from 'screens/AddTaskScreen';
+import TabNav from './TabNav';
 
 interface IProps {}
 
@@ -18,7 +20,14 @@ const StackNav: FC<IProps> = props => {
   const Stack = createNativeStackNavigator();
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='TaskViewScreen'>
+      <Stack.Navigator initialRouteName='TabNav'>
+      <Stack.Screen
+          name="TabNav"
+          component={TabNav}
+          options={{
+            headerShown: false,
+          }}
+        />
         <Stack.Screen
           name="SignUpScreen"
           component={SignUpScreen}
@@ -41,20 +50,27 @@ const StackNav: FC<IProps> = props => {
           }}
         />
         <Stack.Screen
-          name="TaskViewScreen"
-          component={TaskViewScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
           name="UserInfoScreen"
           component={UserInfoScreen}
           options={{
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="TaskViewScreen"
+          component={TaskViewScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
         
+        <Stack.Screen
+          name="AddTaskScreen"
+          component={AddTaskScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
         
       </Stack.Navigator>
     </NavigationContainer>

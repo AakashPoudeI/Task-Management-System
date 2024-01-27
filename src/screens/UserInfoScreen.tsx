@@ -101,13 +101,19 @@ const UserInfoScreen: FC<IProps> = props => {
         value={Lastname}
         underlineColorAndroid="black" />
       </View>
+      
       <TouchableOpacity
-        style={
-          button
-        } onPress={()=> navigation.navigate('TaskViewScreen',{selectedImage})}
-      >
-        <Text style={buttonStyle}>Continue</Text>
-      </TouchableOpacity>
+  style={button}
+  onPress={() => {
+    navigation.navigate('TaskViewScreen', { selectedImage }, () => {
+      navigation.navigate('AddTaskScreen', { selectedImage });
+    });
+  }}
+  
+>
+<Text style={buttonStyle}>Continue</Text>
+</TouchableOpacity>
+
     </KeyboardAwareScrollView>
   );
 };
