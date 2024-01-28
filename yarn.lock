@@ -1782,6 +1782,16 @@
   dependencies:
     plist "^3.1.0"
 
+"@react-native-firebase/database@^18.8.0":
+  version "18.8.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/database/-/database-18.8.0.tgz#c15c3cb65ee859007879533665b4befc7f77b251"
+  integrity sha512-+YmspZH0W8r8lbpNEPRBkd3c+m6+/iw4Tf/VN3ISOM8IGb6P01aJzK9Cu+qNZR2ywr5WMsbUJ+S0HLbwGqAPJw==
+
+"@react-native-firebase/firestore@^18.8.0":
+  version "18.8.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/firestore/-/firestore-18.8.0.tgz#77d54794b896ca792c2d97d01fd8e0c0d09bc322"
+  integrity sha512-tB8ZhIYuFoTO4kYXdh5Q+LSPIXxJ5WPrVxxIxdc+qeaF7SudIojO6w/g8tTxbFdPEos8+JWhBIFAb+o0L3RbBQ==
+
 "@react-native-masked-view/masked-view@^0.3.1":
   version "0.3.1"
   resolved "https://registry.npmjs.org/@react-native-masked-view/masked-view/-/masked-view-0.3.1.tgz"

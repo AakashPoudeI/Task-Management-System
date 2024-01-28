@@ -14,7 +14,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {WIDTH, HEIGHT} from 'utils/dimension';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import FeatherIcon from 'react-native-vector-icons/Feather'
-
+import auth from '@react-native-firebase/auth';
 
 interface IProps {}
 
@@ -24,12 +24,25 @@ interface IProps {}
  **/
 
 const SignUpScreen: FC<IProps> = props => {
+
+  const [message,setMessage]=useState<any>('');
   const isEmailValid = (email: string): boolean => {
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
   
+const handleCreateUser=async()=>{
+  try {
+    const isUserCreated =await auth().createUserWithEmailAndPassword(email,password);
+    console.log(isUserCreated)
+    setMessage('')
+    navigation.navigate("TabNav")
+  } catch (error) {
+    console.log(error)
+  }
+}  
+
 
 
   const isPasswordValid = (email: string): boolean => {
@@ -134,7 +147,7 @@ const SignUpScreen: FC<IProps> = props => {
         )}
         <TouchableOpacity
           style={button}
-          onPress={() => navigation.navigate('UserInfoScreen')}
+          onPress={() => handleCreateUser()}
           disabled={!isFormValid()}>
           <Text style={buttonStyle}>Continue</Text>
         </TouchableOpacity>

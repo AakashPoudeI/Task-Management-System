@@ -2,7 +2,8 @@ import React, {FC} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import LoginEmailScreen from 'screens/LoginEmailScreen';
-import LoginPasswordScreen from 'screens/LoginPasswordScreen';
+import TaskDetailScreen from 'screens/TaskDetailScreen';
+
 import SignUpScreen from 'screens/SignUpScreen';
 import UserInfoScreen from 'screens/UserInfoScreen';
 import TaskViewScreen from 'screens/TaskViewScreen';
@@ -21,13 +22,7 @@ const StackNav: FC<IProps> = props => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName='TabNav'>
-      <Stack.Screen
-          name="TabNav"
-          component={TabNav}
-          options={{
-            headerShown: false,
-          }}
-        />
+      
         <Stack.Screen
           name="SignUpScreen"
           component={SignUpScreen}
@@ -42,13 +37,7 @@ const StackNav: FC<IProps> = props => {
             headerShown: false,
           }}
         />
-        <Stack.Screen
-          name="LoginPasswordScreen"
-          component={LoginPasswordScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
+        
         <Stack.Screen
           name="UserInfoScreen"
           component={UserInfoScreen}
@@ -57,8 +46,22 @@ const StackNav: FC<IProps> = props => {
           }}
         />
         <Stack.Screen
+          name="TabNav"
+          component={TabNav}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
           name="TaskViewScreen"
           component={TaskViewScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="TaskDetailScreen"
+          component={TaskDetailScreen}
           options={{
             headerShown: false,
           }}

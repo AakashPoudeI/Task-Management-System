@@ -24,8 +24,8 @@ interface IProps {}
 
 const UserInfoScreen: FC<IProps> = props => {
  
-  const [Firstname,setFisrtName]=useState<any>();
-  const [Lastname,setLastName]=useState<any>();
+  const [FirstName,setFisrtName]=useState<any>();
+  const [LastName,setLastName]=useState<any>();
   const navigation= useNavigation<any>();
   const [selectedImage, setSelectedImage] = useState<any>(null);
 
@@ -89,7 +89,7 @@ const UserInfoScreen: FC<IProps> = props => {
           style={enterTextStyle}
           underlineColorAndroid="black"
           onChangeText={text=>setFisrtName(text)}
-          value={Firstname}
+          value={FirstName}
         />
       </View>
       <View style={askView1}>
@@ -98,17 +98,32 @@ const UserInfoScreen: FC<IProps> = props => {
       <View style={enterText}>
         <TextInput style={enterTextStyle} 
         onChangeText={text=>setLastName(text)}
-        value={Lastname}
+        value={LastName}
         underlineColorAndroid="black" />
       </View>
       
       <TouchableOpacity
   style={button}
   onPress={() => {
-    navigation.navigate('TaskViewScreen', { selectedImage }, () => {
-      navigation.navigate('AddTaskScreen', { selectedImage });
+    navigation.navigate('TabNav', {
+      screen: 'AddTaskScreen',
+      params: {
+        selectedImage,
+        FirstName,
+        LastName,
+      },
+    });
+  
+    navigation.navigate('TabNav', {
+      screen: 'TaskViewScreen',
+      params: {
+        selectedImage,
+        FirstName,
+        LastName,
+      },
     });
   }}
+ 
   
 >
 <Text style={buttonStyle}>Continue</Text>

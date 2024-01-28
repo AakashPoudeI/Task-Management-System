@@ -6,9 +6,15 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
+  Alert
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {WIDTH, HEIGHT} from 'utils/dimension';
+import auth from '@react-native-firebase/auth';
+import { useRoute } from '@react-navigation/native';
+import FeatherIcon from 'react-native-vector-icons/Feather'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 interface IProps {}
 
 /**
@@ -17,14 +23,71 @@ interface IProps {}
  **/
 
 const LoginEmailScreen: FC<IProps> = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigation = useNavigation<any>();
   const isEmailValid = (email: string): boolean => {
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
+  
 
-  const [email, setEmail] = useState('');
-  const navigation = useNavigation<any>();
+  const handleLogin = async () => {
+    if (!email.trim()) {
+      Alert.alert("Please enter your email.");
+      return;
+    }
+  
+    if (!isEmailValid(email)) {
+      Alert.alert("Invalid email address.");
+      return;
+    }
+  
+    try {
+      // Attempt to sign in with the provided email and password
+      const userCredential = await auth().signInWithEmailAndPassword(email, password);
+  
+      // If successful, userCredential.user will contain the signed-in user information
+      if (userCredential && userCredential.user) {
+        // Navigate to the UserInfoScreen or perform any other actions you need
+        navigation.navigate("TabNav");
+      } else {
+        // Handle the case where userCredential.user is not available
+        console.log("Authentication failed. User data not available.");
+      }
+    } catch (error: any) {
+      // If an error occurs, check the error code to determine the case
+      if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
+        // User not found or wrong password, show an alert
+        Alert.alert(
+          "Authentication Failed",
+          "Invalid email or password. Please check your credentials and try again.",
+          [
+            {
+              text: "OK",
+              onPress: () => console.log("OK Pressed"),
+            },
+          ]
+        );
+      } else {
+        // Handle other errors
+        console.log("Authentication error:", error);
+      }
+    }
+  };
+  
+  const route=useRoute<any>();
+
+
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+  
+
+  
   const {
     container,
     textStyle,
@@ -38,9 +101,12 @@ const LoginEmailScreen: FC<IProps> = () => {
     enterText,
     enterTextStyle,
     buttonStyle,
+    underlineStyle,
+    enterText1,enterTextStyle1
   } = styles;
   return (
-    <SafeAreaView style={container}>
+    <KeyboardAwareScrollView style={container}>
+ 
       <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
         <Text style={textStyle}>Create Account</Text>
       </TouchableOpacity>
@@ -68,13 +134,39 @@ const LoginEmailScreen: FC<IProps> = () => {
     <Text style={{ color: 'red' }}>Invalid email address</Text>
   )}
       </View>
+      <View style={askView1}>
+        <Text style={subhead1}>YOUR PASSWORD</Text>
+      </View>
+      <View style={underlineStyle}>
+      <View style={enterText1}>
+        <TextInput
+          style={enterTextStyle1}
+          placeholder="Your Password Here"
+          secureTextEntry={!showPassword}
+          placeholderTextColor="lightgrey"
+          multiline={false}
+          onChangeText={text => setPassword(text)}
+          value={password} />
+        <TouchableOpacity onPress={togglePasswordVisibility} style={{ alignItems: 'center' }}>
+          <FeatherIcon
+            name={showPassword ? 'eye-off' : 'eye'}
+            style={{
+              fontSize: 30,
+              color: 'red',
+              marginLeft: showPassword ? 90 : 60,
+            }} />
+          <Text>{showPassword ? 'Hide' : 'Show'}</Text>
+        </TouchableOpacity>
+        </View>
+      </View>
       <TouchableOpacity
         style={button}
-        onPress={() => navigation.navigate('LoginPasswordScreen', {email})}
+        onPress={() => handleLogin()}
         disabled={!isEmailValid(email)}>
         <Text style={buttonStyle}>Continue</Text>
       </TouchableOpacity>
-    </SafeAreaView>
+   
+    </KeyboardAwareScrollView>
   );
 };
 
@@ -92,6 +184,9 @@ const styles = StyleSheet.create({
     marginLeft: 219,
     marginTop: 80,
   },
+  underlineStyle: {
+    width:350
+  },
 
   headingTextView: {
     height: 'auto',
@@ -100,6 +195,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginLeft: 30,
     marginTop: 50,
+  },
+  enterText1: {
+    marginTop: 25,
+    width: 350,
+    marginLeft: 25,
+    fontWeight: '400',
+    flexDirection:'row',
+    justifyContent:"space-between",
+    borderBottomWidth: 1, 
+    borderBottomColor: 'black',
+  },
+  enterTextStyle1: {
+    color: 'black',
+    fontWeight: '500',
+    fontSize: 20,
   },
   headingText: {
     justifyContent: 'center',
