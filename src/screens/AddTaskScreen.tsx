@@ -50,28 +50,30 @@ const AddTaskScreen: FC<IProps> = (props) => {
     hideDatePicker();
   };
 
-  const handleAddTask = async () => {
+  const handleAddTask = async (index?: any) => {
     try {
-      // Get the current index
-      const indexSnapshot = await firebase
-        .app()
-        .database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/')
-        .ref('todo/index')
-        .once('value');
+      // Get the current index if not provided
+      if (index === undefined) {
+        const indexSnapshot = await firebase
+          .app()
+          .database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/')
+          .ref('todo/index')
+          .once('value');
   
-      let index = indexSnapshot.val() || 0;
+        index = indexSnapshot.val() || 0;
+    
+        // Increment the index for the new task
+        index++;
+    
+        // Update the index in Firebase
+        await firebase
+          .app()
+          .database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/')
+          .ref('todo/index')
+          .set(index);
+      }
   
-      // Increment the index for the new task
-      index++;
-  
-      // Update the index in Firebase
-      await firebase
-        .app()
-        .database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/')
-        .ref('todo/index')
-        .set(index);
-  
-      // Add the new task with the updated index
+      // Add or update the task with the provided index
       await firebase
         .app()
         .database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/')
@@ -108,12 +110,14 @@ const AddTaskScreen: FC<IProps> = (props) => {
         }
       });
   
-      console.log('Task added successfully');
+      console.log('Task added/updated successfully');
+      navigation.navigate("TaskViewScreen");
     } catch (error) {
-      console.error('Error adding task:', error);
-      Alert.alert('Error', 'Failed to add task. Check console for details.');
+      console.error('Error adding/updating task:', error);
+      Alert.alert('Error', 'Failed to add/update task. Check console for details.');
     }
   };
+  
   
 
   useEffect(() => {

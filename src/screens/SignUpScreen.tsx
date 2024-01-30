@@ -1,67 +1,144 @@
-import {NavigationContainer, useNavigation} from '@react-navigation/native';
-import React, {FC, useState} from 'react';
+// Import statements
+import React, { FC, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  TextInputBase,
-  KeyboardAvoidingView,
+  Alert,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {WIDTH, HEIGHT} from 'utils/dimension';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import FeatherIcon from 'react-native-vector-icons/Feather'
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { WIDTH } from 'utils/dimension';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import FeatherIcon from 'react-native-vector-icons/Feather';
 import auth from '@react-native-firebase/auth';
 
+// Interface for props
 interface IProps {}
 
-/**
- * @author
- * @function @loginScreen
- **/
-
-const SignUpScreen: FC<IProps> = props => {
-
-  const [message,setMessage]=useState<any>('');
-  const isEmailValid = (email: string): boolean => {
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-  
-const handleCreateUser=async()=>{
-  try {
-    const isUserCreated =await auth().createUserWithEmailAndPassword(email,password);
-    console.log(isUserCreated)
-    setMessage('')
-    navigation.navigate("TabNav")
-  } catch (error) {
-    console.log(error)
-  }
-}  
-
-
-
-  const isPasswordValid = (email: string): boolean => {
-    
-    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return passwordRegex.test(password);
-  };
-  
-  
-  const navigation = useNavigation<any>();
+// Component
+const SignUpScreen: FC<IProps> = (props) => {
+  // State variables
   const [email, setEmail] = useState<any>('');
   const [password, setPassword] = useState<any>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const isFormValid = () => {
-    return isEmailValid(email) && isPasswordValid(password);
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+  const [message, setMessage] = useState<any>('');
+
+  // Helper function to check if email is valid
+  const isEmailValid = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
+
+  // Helper function to check if password is valid
+  const isPasswordValid = (password: string): string[] => {
+    const errors: string[] = [];
+
+    const uppercaseRegex = /[A-Z]/;
+    const lowercaseRegex = /[a-z]/;
+    const digitRegex = /\d/;
+    const specialCharRegex = /[@$!%*?&]/;
+
+    if (!uppercaseRegex.test(password)) {
+      errors.push('Password must contain at least one uppercase letter.');
+    }
+
+    if (!lowercaseRegex.test(password)) {
+      errors.push('Password must contain at least one lowercase letter.');
+    }
+
+    if (!digitRegex.test(password)) {
+      errors.push('Password must contain at least one digit.');
+    }
+
+    if (!specialCharRegex.test(password)) {
+      errors.push(
+        'Password must contain at least one special character (@$!%*?&).'
+      );
+    }
+
+    if (password.length < 8) {
+      errors.push('Password must be at least 8 characters long.');
+    }
+
+    return errors;
+  };
+
+  // Navigation hook
+  const navigation = useNavigation<any>();
+
+  // Form validation function
+  const isFormValid = () => {
+    return isEmailValid(email) && isPasswordValid(password).length === 0;
+  };
+
+  // Toggle password visibility
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
+  // Handle user creation
+ // Handle user creation
+const handleCreateUser = async () => {
+  try {
+    if (!isFormValid()) {
+      // Form validation failed
+      setMessage('Invalid email or password');
+      return;
+    }
+
+    const passwordErrors = isPasswordValid(password);
+
+    if (passwordErrors.length > 0) {
+      // Password format is invalid
+      setMessage(
+        'Invalid password format. Please fix the following issues:\n' +
+          passwordErrors.join('\n')
+      );
+      setPasswordErrors(passwordErrors);
+      return;
+    }
+
+    const passwordRegex = /^[A-Za-z\d@$!%*?&]+$/;
+
+    if (!passwordRegex.test(password)) {
+      // Password doesn't match the regex
+      setMessage(
+        'Invalid password format. Password can only contain letters, digits, and special characters (@$!%*?&).'
+      );
+      setPasswordErrors(['Password format is invalid.']);
+      return;
+    }
+
+    const isUserCreated = await auth().createUserWithEmailAndPassword(
+      email,
+      password
+    );
+    console.log(isUserCreated);
+    setMessage('');
+    setPasswordErrors([]);
+    navigation.navigate('UserInfoScreen');
+  } catch (error:any) {
+    console.error(error);
+
+    let errorMessage = 'An error occurred.';
+
+    // Handle specific authentication error codes
+    if (error.code === 'auth/email-already-in-use') {
+      errorMessage =
+        'Email address is already in use. Please use a different email.';
+    }
+
+    // Show an alert with the error message
+    Alert.alert('Error', errorMessage);
+  }
+};
+
+  // Styles
   const {
     container,
     textStyle,
@@ -79,19 +156,28 @@ const handleCreateUser=async()=>{
     underlineStyle,
     buttonStyle,
   } = styles;
+
+  // Render
   return (
     <KeyboardAwareScrollView style={container}>
       <SafeAreaView>
+        {/* Navigation to Login Screen */}
         <TouchableOpacity
           onPress={() => navigation.navigate('LoginEmailScreen')}>
           <Text style={textStyle}>Have Account? Log In</Text>
         </TouchableOpacity>
+
+        {/* Heading */}
         <View style={headingTextView}>
           <Text style={headingText}>Sign Up</Text>
         </View>
+
+        {/* Subheading */}
         <View style={askView}>
           <Text style={subhead}>Sign Up To Continue</Text>
         </View>
+
+        {/* Email Input */}
         <View style={askView1}>
           <Text style={subhead1}>YOUR EMAIL</Text>
         </View>
@@ -102,53 +188,59 @@ const handleCreateUser=async()=>{
             inputMode="email"
             placeholderTextColor="lightgrey"
             underlineColorAndroid="black"
-            onChangeText={text => setEmail(text)}
+            onChangeText={(text) => setEmail(text)}
             value={email}
           />
         </View>
         {email.length > 0 && !isEmailValid(email) && (
-          <Text style={{color: 'red', marginLeft: 25}}>
+          <Text style={{ color: 'red', marginLeft: 25 }}>
             Invalid email address
           </Text>
         )}
+
+        {/* Password Input */}
         <View style={askView1}>
           <Text style={subhead1}>YOUR PASSWORD</Text>
         </View>
-         <View style={underlineStyle}> 
-        <View style={enterTextPassword}>
-        
-          <TextInput
-            style={enterTextPasswordStyle}
-            placeholder="Your Password Here"
-            secureTextEntry={!showPassword}
-            placeholderTextColor="lightgrey"
-            
-            multiline={false}
-            onChangeText={text => setPassword(text)}
-            value={password}
-          />
-           <TouchableOpacity onPress={togglePasswordVisibility} style={{ alignItems: 'center' }}>
-           <FeatherIcon
-                 name={showPassword ? 'eye-off' : 'eye'}
-                 style={{
+        <View style={underlineStyle}>
+          <View style={enterTextPassword}>
+            <TextInput
+              style={enterTextPasswordStyle}
+              placeholder="Your Password Here"
+              secureTextEntry={!showPassword}
+              placeholderTextColor="lightgrey"
+              multiline={false}
+              onChangeText={(text) => setPassword(text)}
+              value={password}
+            />
+            <TouchableOpacity
+              onPress={togglePasswordVisibility}
+              style={{ alignItems: 'center' }}
+            >
+              <FeatherIcon
+                name={showPassword ? 'eye-off' : 'eye'}
+                style={{
                   fontSize: 30,
                   color: 'red',
                   marginLeft: showPassword ? 90 : 60,
                 }}
               />
-          <Text>{showPassword ? 'Hide' : 'Show'}</Text>
-        </TouchableOpacity> 
+              <Text>{showPassword ? 'Hide' : 'Show'}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-         </View> 
         {password.length > 0 && !isPasswordValid(password) && (
-          <Text style={{color: 'red', marginLeft: 25}}>
+          <Text style={{ color: 'red', marginLeft: 25 }}>
             Invalid Password Format
           </Text>
         )}
+
+        {/* Continue Button */}
         <TouchableOpacity
-          style={button}
-          onPress={() => handleCreateUser()}
-          disabled={!isFormValid()}>
+        style={[styles.button, !isFormValid() && styles.buttonDisabled]}
+        onPress={() => handleCreateUser()}
+        disabled={!isFormValid()}
+      >
           <Text style={buttonStyle}>Continue</Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -156,6 +248,7 @@ const handleCreateUser=async()=>{
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -171,7 +264,6 @@ const styles = StyleSheet.create({
     marginTop: 50,
     marginBottom: 30,
   },
-
   headingTextView: {
     height: 'auto',
     width: 'auto',
@@ -188,7 +280,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   underlineStyle: {
-    width:350
+    width: 350,
   },
   subhead: {
     fontSize: 18,
@@ -247,17 +339,14 @@ const styles = StyleSheet.create({
     width: 350,
     marginLeft: 25,
     fontWeight: '500',
-    flexDirection:'row',
-    
-    borderBottomWidth: 1, 
+    flexDirection: 'row',
+    borderBottomWidth: 1,
     borderBottomColor: 'black',
-  
   },
   enterTextPasswordStyle: {
     color: 'black',
     fontWeight: '400',
     fontSize: 20,
-    
   },
   buttonStyle: {
     fontSize: 20,
@@ -265,7 +354,10 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     color: 'white',
   },
- 
+  buttonDisabled: {
+    backgroundColor: 'lightgray', // Choose a color for disabled state
+  },
+
 });
 
 export default SignUpScreen;

@@ -12,12 +12,11 @@ const TaskViewScreen: FC<IProps> = () => {
   const [selected, setSelected] = useState<any>('');
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [tasks, setTasks] = useState<any[]>([]);
   const [list, setList] = useState<any[]>([]);
 
   const handleSearchIconPress = () => {
     setIsSearchActive(!isSearchActive);
-  };
+      };
 
   const navigation = useNavigation<any>();
 
@@ -87,7 +86,7 @@ const TaskViewScreen: FC<IProps> = () => {
           const sortedList = listArray.sort((a, b) => {
             const dateA = new Date(a.selectedDate).getTime();
             const dateB = new Date(b.selectedDate).getTime();
-            return dateA - dateB;
+            return dateB - dateA;
           });
   
           setList(sortedList);

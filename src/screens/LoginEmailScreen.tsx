@@ -34,22 +34,28 @@ const LoginEmailScreen: FC<IProps> = () => {
   
 
   const handleLogin = async () => {
+    console.log("Attempting login...");
+  
     if (!email.trim()) {
+      console.log("Email is empty. Showing alert.");
       Alert.alert("Please enter your email.");
       return;
     }
   
     if (!isEmailValid(email)) {
+      console.log("Invalid email format. Showing alert.");
       Alert.alert("Invalid email address.");
       return;
     }
   
     try {
       // Attempt to sign in with the provided email and password
+      console.log("Attempting Firebase authentication...");
       const userCredential = await auth().signInWithEmailAndPassword(email, password);
   
       // If successful, userCredential.user will contain the signed-in user information
       if (userCredential && userCredential.user) {
+        console.log("Login successful. Navigating to TabNav...");
         // Navigate to the UserInfoScreen or perform any other actions you need
         navigation.navigate("TabNav");
       } else {
@@ -58,11 +64,27 @@ const LoginEmailScreen: FC<IProps> = () => {
       }
     } catch (error: any) {
       // If an error occurs, check the error code to determine the case
-      if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
-        // User not found or wrong password, show an alert
+      console.log("Error during authentication:", error);
+  
+      if (error.code === "auth/invalid-credential") {
+        // User not found, show an alert
+        console.log("User not found. Showing alert.");
         Alert.alert(
           "Authentication Failed",
-          "Invalid email or password. Please check your credentials and try again.",
+          "Either the email isn't registered or the password is incorrect",
+          [
+            {
+              text: "OK",
+              onPress: () => console.log("OK Pressed"),
+            },
+          ]
+        );
+      } else if (error.code === "auth/wrong-password") {
+        // Wrong password, show an alert
+        console.log("Wrong password. Showing alert.");
+        Alert.alert(
+          "Authentication Failed",
+          "Incorrect password. Please check your password and try again.",
           [
             {
               text: "OK",
@@ -77,7 +99,6 @@ const LoginEmailScreen: FC<IProps> = () => {
     }
   };
   
-  const route=useRoute<any>();
 
 
   const [showPassword, setShowPassword] = useState<boolean>(false);

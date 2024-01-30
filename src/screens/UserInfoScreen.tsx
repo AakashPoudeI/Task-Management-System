@@ -105,19 +105,11 @@ const UserInfoScreen: FC<IProps> = props => {
       <TouchableOpacity
   style={button}
   onPress={() => {
-    navigation.navigate('TabNav', {
-      screen: 'AddTaskScreen',
-      params: {
-        selectedImage,
-        FirstName,
-        LastName,
-      },
-    });
-  
+     
     navigation.navigate('TabNav', {
       screen: 'TaskViewScreen',
       params: {
-        selectedImage,
+        image,
         FirstName,
         LastName,
       },

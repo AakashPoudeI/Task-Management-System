@@ -86,6 +86,7 @@ const TaskDetailScreen: FC<IProps> = () => {
 
       // Show an alert or perform any other action after successful update
       Alert.alert('Task updated successfully!');
+      navigation.navigate("TaskViewScreen")
     } catch (error) {
       console.error('Error updating data:', error);
     }
@@ -101,7 +102,7 @@ const TaskDetailScreen: FC<IProps> = () => {
 
       // Show an alert or perform any other action after successful deletion
       Alert.alert('Task deleted successfully!');
-      navigation.goBack(); // Navigate back to TaskViewScreen
+      navigation.navigate("TaskViewScreen") // Navigate back to TaskViewScreen
     } catch (error) {
       console.error('Error deleting data:', error);
     }
