@@ -168,13 +168,13 @@ const LoginEmailScreen: FC<IProps> = () => {
           multiline={false}
           onChangeText={text => setPassword(text)}
           value={password} />
-        <TouchableOpacity onPress={togglePasswordVisibility} style={{ alignItems: 'center' }}>
+        <TouchableOpacity onPress={togglePasswordVisibility}    style={{  position:"absolute",
+              marginLeft:300}}>
           <FeatherIcon
             name={showPassword ? 'eye-off' : 'eye'}
             style={{
               fontSize: 30,
               color: 'red',
-              marginLeft: showPassword ? 90 : 60,
             }} />
           <Text>{showPassword ? 'Hide' : 'Show'}</Text>
         </TouchableOpacity>

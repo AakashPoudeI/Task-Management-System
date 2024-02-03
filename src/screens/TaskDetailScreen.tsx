@@ -1,8 +1,10 @@
 import React, { FC, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, ScrollView, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, Button, ScrollView, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { firebase } from '@react-native-firebase/database';
 import { RouteParams } from '../navigation/types';
+
+
 
 interface IProps {}
 
@@ -14,57 +16,24 @@ const TaskDetailScreen: FC<IProps> = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
-  useEffect(() => {
-    // Fetch data from Firebase when the component mounts
-    fetchData();
-
-    // Set up real-time listener for the specific task
-    const taskRef = firebase
-      .app()
-      .database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/')
-      .ref(`todo/${taskId}`);
-
-    const onTaskValueChange = taskRef.on('value', (snapshot) => {
-      // Call fetchData whenever the task data changes
-      fetchData();
-    });
-
-    // Stop listening for updates when no longer required
-    return () => taskRef.off('value', onTaskValueChange);
-  }, [taskId]);
-
   const fetchData = async () => {
     try {
-      const snapshot = await firebase
-        .app()
-        .database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/')
-        .ref('todo')
-        .once('value');
+      const snapshot = await firebase.app().database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/').ref('todo').once('value');
 
       if (snapshot.exists()) {
         const data = snapshot.val();
-        // Convert data object to an array with type annotations
         const listArray: { id: string; selectedDate: string; title: string; description: string }[] = Object.values(data);
 
-        // Sort the array chronologically based on the selectedDate
-        const sortedList = listArray.sort((a, b) => {
-          const dateA = new Date(a.selectedDate).getTime();
-          const dateB = new Date(b.selectedDate).getTime();
-          return dateA - dateB;
-        });
-
+        const sortedList = listArray.sort((a, b) => new Date(a.selectedDate).getTime() - new Date(b.selectedDate).getTime());
         setList(sortedList);
 
-        // Find the task with the specified taskId
         const selectedTask = sortedList.find((task) => task.id === taskId);
 
-        // Set title and description based on the selected task
         if (selectedTask) {
           setTitle(selectedTask.title);
           setDescription(selectedTask.description);
         }
       } else {
-        // No data found
         setList([]);
       }
     } catch (error) {
@@ -72,19 +41,33 @@ const TaskDetailScreen: FC<IProps> = () => {
     }
   };
 
+  const handleDelete = () => {
+    Alert.alert(
+      'Delete Task',
+      'Are you sure you want to delete this task?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: deleteData,
+          style: 'destructive',
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   const updateData = async () => {
     try {
-      await firebase
-        .app()
-        .database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/')
-        .ref(`todo/${taskId}`)
-        .update({
-          title: title,
-          description: description,
-          updatedAt: firebase.database.ServerValue.TIMESTAMP,
-        });
+      await firebase.app().database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/').ref(`todo/${taskId}`).update({
+        title,
+        description,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+      });
 
-      // Show an alert or perform any other action after successful update
       Alert.alert('Task updated successfully!');
       navigation.navigate("TaskViewScreen")
     } catch (error) {
@@ -94,21 +77,32 @@ const TaskDetailScreen: FC<IProps> = () => {
 
   const deleteData = async () => {
     try {
-      await firebase
-        .app()
-        .database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/')
-        .ref(`todo/${taskId}`)
-        .set(null);
+      await firebase.app().database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/').ref(`todo/${taskId}`).set(null);
 
-      // Show an alert or perform any other action after successful deletion
       Alert.alert('Task deleted successfully!');
-      navigation.navigate("TaskViewScreen") // Navigate back to TaskViewScreen
+      navigation.navigate("TaskViewScreen");
     } catch (error) {
       console.error('Error deleting data:', error);
     }
   };
 
-  const { container, text, button, inputStyle, buttonText } = styles;
+  const { container, text, inputStyle, button ,buttonStyle} = styles;
+
+  useEffect(() => {
+    fetchData();
+    const taskRef = firebase.app().database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/').ref(`todo/${taskId}`);
+    const onTaskValueChange = taskRef.on('value', fetchData);
+
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={handleDelete}>
+          <Text style={buttonStyle}>Continue</Text>
+        </TouchableOpacity>
+      ),
+    });
+
+    return () => taskRef.off('value', onTaskValueChange);
+  }, [taskId]);
 
   return (
     <ScrollView style={container}>
@@ -135,7 +129,7 @@ const TaskDetailScreen: FC<IProps> = () => {
           <Button title="Update Task" onPress={updateData} color="#4CAF50" />
         </View>
         <View style={button}>
-          <Button title="Delete Task" onPress={deleteData} color="#f44336" />
+          <Button title="Delete Task" onPress={handleDelete} color="#f44336" />
         </View>
       </>
     </ScrollView>
@@ -152,6 +146,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 10,
     color: '#333',
+  },
+  buttonStyle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+    color: 'white',
   },
   inputStyle: {
     height: 40,
@@ -170,3 +170,4 @@ const styles = StyleSheet.create({
 });
 
 export default TaskDetailScreen;
+

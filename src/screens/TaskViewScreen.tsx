@@ -1,9 +1,9 @@
 import React, { FC, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import { useNavigation } from '@react-navigation/native';
 import VectorImage from 'react-native-vector-image';
 import Calendar from 'components/Calendar';
+import { useNavigation } from '@react-navigation/native';
 import { firebase } from '@react-native-firebase/database';
 
 interface IProps {}
@@ -16,58 +16,66 @@ const TaskViewScreen: FC<IProps> = () => {
 
   const handleSearchIconPress = () => {
     setIsSearchActive(!isSearchActive);
-      };
+  };
 
   const navigation = useNavigation<any>();
 
   const handleCardPress = (task: any) => {
     navigation.navigate('TaskDetailScreen', {
       task,
-      onDelete: fetchData, // Pass the fetchData callback function
+      onDelete: () => handleDelete(task.id), // Pass a function to delete the specific task
+      onUpdate: fetchData,
     });
+  };
+  
+  const handleUpdate = (task: any) => {
+    try {
+      // Navigate to the TaskDetailScreen with the task object for updating
+      navigation.navigate('TaskDetailScreen', {
+        task,
+        onUpdate: async (updatedTask: any) => {
+          // Update the task in the database
+          const taskRef = firebase
+            .app()
+            .database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/')
+            .ref(`todo/${updatedTask.id}`);
+  
+          await taskRef.update(updatedTask);
+  
+          // Update the task in the local state (list)
+          setList((prevList) =>
+            prevList.map((t) => (t.id === updatedTask.id ? { ...t, ...updatedTask } : t))
+          );
+  
+          Alert.alert('Task updated successfully!');
+        },
+      });
+    } catch (error) {
+      console.error('Error updating data:', error);
+    }
   };
 
   const handleDelete = async (taskId: string) => {
     try {
-      // Set up real-time listener for the specific task being deleted
       const taskRef = firebase
         .app()
         .database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/')
         .ref(`todo/${taskId}`);
-
-      const onTaskValueChange = taskRef.on('value', (snapshot) => {
-        fetchData(); // Call fetchData whenever the task data changes
-      });
-
+  
       // Remove the task from the database
-      await taskRef.remove();
-
-      // Stop listening for updates when no longer required
-      taskRef.off('value', onTaskValueChange);
-
-      // Show an alert or perform any other action after successful deletion
+      await taskRef.set(null);
+  
+      // Remove the task from the local state (list)
+      setList((prevList) => prevList.filter((task) => task.id !== taskId));
+  
       Alert.alert('Task deleted successfully!');
     } catch (error) {
       console.error('Error deleting data:', error);
     }
   };
-
+  
   useEffect(() => {
-    // Fetch data from Firebase when the component mounts
-    fetchData();
-
-    // Set up real-time listener for tasks
-    const tasksRef = firebase
-      .app()
-      .database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/')
-      .ref('todo');
-
-    const onTasksValueChange = tasksRef.on('value', (snapshot) => {
-      fetchData(); // Call fetchData whenever the tasks data changes
-    });
-
-    // Stop listening for updates when no longer required
-    return () => tasksRef.off('value', onTasksValueChange);
+    fetchData(); // Fetch data when the component mounts
   }, []);
 
   const fetchData = () => {
@@ -76,19 +84,19 @@ const TaskViewScreen: FC<IProps> = () => {
         .app()
         .database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/')
         .ref('todo');
-  
+
       tasksRef.on('value', (snapshot) => {
         if (snapshot.exists()) {
           const data = snapshot.val();
           const listArray: { id: string; selectedDate: string }[] = Object.values(data);
-  
+
           // Sort the array chronologically based on the selectedDate
           const sortedList = listArray.sort((a, b) => {
             const dateA = new Date(a.selectedDate).getTime();
             const dateB = new Date(b.selectedDate).getTime();
-            return dateB - dateA;
+            return dateA - dateB;
           });
-  
+
           setList(sortedList);
         } else {
           // No data found
@@ -99,7 +107,6 @@ const TaskViewScreen: FC<IProps> = () => {
       console.error('Error fetching data:', error);
     }
   };
-  
 
   const {
     container,
@@ -112,6 +119,12 @@ const TaskViewScreen: FC<IProps> = () => {
     searchStyle,
     card,
     iconContainer,
+    buttonContainer,
+    updateButton,
+    deleteButton,
+    buttonText,
+    cardContent,
+    cardText,
   } = styles;
 
   return (
@@ -145,21 +158,43 @@ const TaskViewScreen: FC<IProps> = () => {
       </View>
 
       <Calendar onSelectDate={setSelected} selected={selected} />
-      {list.map((task) => (
-        <TouchableOpacity key={task.id} onPress={() => handleCardPress(task)}>
-          <View style={card}>
-            <Text>Heading: {task.title}</Text>
-            <Text>Selected Date: {task.selectedDate}</Text>
-            <Text>Description: {task.description}</Text>
-            <TouchableOpacity onPress={() => handleDelete(task.id)}>
-              <Text>Delete</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
-      ))}
+      
+      {list.length === 0 ? (
+        <View style={{ alignItems: 'center', marginTop: 20 }}>
+          <Text>No tasks added</Text>
+        </View>
+      ) : (
+        list.map((task) => (
+          <TouchableOpacity key={task.id} onPress={() => handleCardPress(task)}>
+            <View style={[card, { backgroundColor: 'purple' }]}>
+              <View style={cardContent}>
+                <Text style={[cardText, { color: 'white', fontSize: 18, fontWeight: 'bold' }]}>
+                  Heading: {task.title}
+                </Text>
+                <Text style={[cardText, { color: 'white' }]}>
+                  Selected Date: {task.selectedDate}
+                </Text>
+                <Text style={[cardText, { color: 'white' }]}>
+                  Description: {task.description}
+                </Text>
+              </View>
+              <View style={buttonContainer}>
+                <TouchableOpacity style={updateButton} onPress={() => handleUpdate(task.id)}>
+                  <Text style={buttonText}>Update</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={deleteButton} onPress={() => handleDelete(task.id)}>
+                  <Text style={buttonText}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))
+      )}
     </ScrollView>
   );
 };
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -167,13 +202,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   card: {
-    padding: 16,
-    margin: 8,
+    margin: 16,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: 'gray',
     backgroundColor: 'purple',
-    height: 100,
+    padding: 16,
+    height:200,
+  },
+  cardContent: {
+    flex: 1,
+  },
+  cardText: {
+    marginBottom: 8,
   },
   headerStyle: {
     marginTop: 30,
@@ -233,7 +274,32 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     borderColor: 'black',
     borderWidth: 1,
+  },  
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 10,
+  },
+  updateButton: {
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    width: '40%',
+  },
+  deleteButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    width: '40%',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
+
 
 export default TaskViewScreen;

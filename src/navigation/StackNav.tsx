@@ -21,7 +21,7 @@ const StackNav: FC<IProps> = props => {
   const Stack = createNativeStackNavigator();
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName='LoginEmailScreen'>
+      <Stack.Navigator initialRouteName='SignUpScreen'>
       
         <Stack.Screen
           name="SignUpScreen"

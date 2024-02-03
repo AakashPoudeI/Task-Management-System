@@ -215,17 +215,18 @@ const handleCreateUser = async () => {
             />
             <TouchableOpacity
               onPress={togglePasswordVisibility}
-              style={{ alignItems: 'center' }}
+              style={{  position:"absolute",
+              marginLeft:300}}
             >
               <FeatherIcon
                 name={showPassword ? 'eye-off' : 'eye'}
                 style={{
                   fontSize: 30,
                   color: 'red',
-                  marginLeft: showPassword ? 90 : 60,
+                
                 }}
               />
-              <Text>{showPassword ? 'Hide' : 'Show'}</Text>
+              <Text>{showPassword}</Text>
             </TouchableOpacity>
           </View>
         </View>
