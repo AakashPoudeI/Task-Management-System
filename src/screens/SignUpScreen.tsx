@@ -81,9 +81,8 @@ const SignUpScreen: FC<IProps> = (props) => {
     setShowPassword(!showPassword);
   };
 
-  // Handle user creation
  // Handle user creation
-const handleCreateUser = async () => {
+ const handleCreateUser = async () => {
   try {
     if (!isFormValid()) {
       // Form validation failed
@@ -114,14 +113,24 @@ const handleCreateUser = async () => {
       return;
     }
 
-    const isUserCreated = await auth().createUserWithEmailAndPassword(
+    const { user } = await auth().createUserWithEmailAndPassword(
       email,
       password
     );
-    console.log(isUserCreated);
+
+    // Send email verification
+    await user.sendEmailVerification();
+
     setMessage('');
     setPasswordErrors([]);
-    navigation.navigate('UserInfoScreen');
+
+    if (user && !user.emailVerified) {
+      // If email is not verified, navigate to email verification screen
+      navigation.navigate('UserInfoScreen');
+    } else {
+      // If email is verified, navigate to login screen
+      navigation.navigate('LoginScreen');
+    }
   } catch (error:any) {
     console.error(error);
 
@@ -137,7 +146,6 @@ const handleCreateUser = async () => {
     Alert.alert('Error', errorMessage);
   }
 };
-
   // Styles
   const {
     container,
@@ -243,6 +251,11 @@ const handleCreateUser = async () => {
         disabled={!isFormValid()}
       >
           <Text style={buttonStyle}>Continue</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => navigation.navigate('AdminLoginScreen')}>
+          <Text style={textStyle}>Admin Login</Text>
         </TouchableOpacity>
       </SafeAreaView>
     </KeyboardAwareScrollView>

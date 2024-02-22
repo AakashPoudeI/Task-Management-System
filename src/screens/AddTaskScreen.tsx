@@ -1,21 +1,18 @@
 // AddTaskScreen.tsx
-import React, { FC, useState, useEffect } from 'react';
+import React, { FC, useState } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Image,
   Alert,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import VectorImage from 'react-native-vector-image';
+import { useNavigation } from '@react-navigation/native';
 import { firebase } from '@react-native-firebase/database';
-import { v4 as uuidv4 } from 'uuid';
 
 interface IProps {}
 
@@ -25,7 +22,6 @@ const AddTaskScreen: FC<IProps> = () => {
   const [isTimePickerVisible, setTimePickerVisibility] = useState<boolean>(false);
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  const [list, setList] = useState<any[]>([]);
 
   const navigation = useNavigation<any>();
 
@@ -70,35 +66,30 @@ const AddTaskScreen: FC<IProps> = () => {
         Alert.alert('Invalid Date', 'Please select a future date and time.');
         return;
       }
-  
+
       const taskRef = firebase
         .app()
         .database('https://taskblaze-d5705-default-rtdb.asia-southeast1.firebasedatabase.app/')
-        .ref('todo');
-  
+        .ref('/todo/');
+
       const newTaskRef = taskRef.push(); // Generates a unique key for the task
-  
+
       const taskData = {
         taskId: newTaskRef.key,
         selectedDate: selectedDate.toISOString(),
         title,
         description,
-        createdAt: firebase.database.ServerValue.TIMESTAMP,
-        updatedAt: firebase.database.ServerValue.TIMESTAMP,
       };
-  
-      await newTaskRef.set(taskData);
-  
 
-  
+      await newTaskRef.set(taskData);
+
       Alert.alert('Task created successfully!');
-      navigation.navigate('TaskViewScreen');
+      navigation.navigate('TaskViewScreen', { selectedDate: selectedDate.toISOString() });
     } catch (error) {
       console.error('Error adding task:', error);
       Alert.alert('Error', 'Failed to add task. Check console for details.');
     }
   };
-  
 
   const {
     container,
@@ -138,17 +129,6 @@ const AddTaskScreen: FC<IProps> = () => {
         <Text style={[textStyle, { fontSize: 36 }]}>Create Task</Text>
       </View>
       <View style={configureContainer}>
-        <View style={profileContainer}>
-          <>
-            <View style={svgContainer}>
-              {/* <VectorImage
-                source={require('../assets/images/tasks-boss-svgrepo-com.dark.svg')}
-                style={svgStyle}
-              /> */}
-            </View>
-          </>
-       
-        </View>
         <View style={dateInfoContainer}>
           <View style={icon2Container}>
             <TouchableOpacity>
@@ -160,6 +140,22 @@ const AddTaskScreen: FC<IProps> = () => {
                 onPress={showDatePicker}
               />
             </TouchableOpacity>
+          </View>
+          <View style={dateShowContainer}>
+            <Text style={assignStyle}>Due Date</Text>
+            {selectedDate && (
+              <Text style={assignStyle2}>
+                {selectedDate.toDateString().split('T')[0]}{' '}
+              </Text>
+            )}
+            {isDatePickerVisible && (
+              <DateTimePicker
+                value={selectedDate || new Date()}
+                mode="date"
+                display="default"
+                onChange={handleConfirmDate}
+              />
+            )}
           </View>
           <View style={icon2Container}>
             <TouchableOpacity>
@@ -173,20 +169,11 @@ const AddTaskScreen: FC<IProps> = () => {
             </TouchableOpacity>
           </View>
           <View style={dateShowContainer}>
-            <Text style={assignStyle}>Due Date and Time</Text>
+            <Text style={assignStyle}>Due Time</Text>
             {selectedDate && (
               <Text style={assignStyle2}>
-                {selectedDate.toISOString().split('T')[0]}{' '}
                 {selectedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </Text>
-            )}
-            {isDatePickerVisible && (
-              <DateTimePicker
-                value={selectedDate || new Date()}
-                mode="date"
-                display="default"
-                onChange={handleConfirmDate}
-              />
             )}
             {isTimePickerVisible && (
               <DateTimePicker
@@ -302,6 +289,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between', // Center the content horizontally
   alignItems: 'center', // Center the content vertically
+  marginHorizontal:18,
   },
   assignStyle: {
     fontSize: 18,
@@ -337,7 +325,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   dateShowContainer: {
-    marginLeft: -52,
+    marginLeft:-42,
     alignSelf: 'center',
     marginRight: 20,
     flexDirection: 'column',

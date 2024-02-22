@@ -5,12 +5,12 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  Image
+  Image,
 } from 'react-native';
 import {WIDTH} from 'utils/dimension';
 
 import ImageCropPicker from 'react-native-image-crop-picker';
-
+import firestore from '@react-native-firebase/firestore';
 import VectorImage from 'react-native-vector-image';
 import {useNavigation} from '@react-navigation/native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
@@ -22,12 +22,26 @@ interface IProps {}
  * @function @userinfo
  **/
 
-const UserInfoScreen: FC<IProps> = props => {
- 
-  const [FirstName,setFisrtName]=useState<any>();
-  const [LastName,setLastName]=useState<any>();
-  const navigation= useNavigation<any>();
+const UserInfoScreen: FC<IProps> = () => {
+  const [FirstName, setFisrtName] = useState<any>();
+  const [LastName, setLastName] = useState<any>();
+  const navigation = useNavigation<any>();
   const [selectedImage, setSelectedImage] = useState<any>(null);
+  const handleContinue = async () => {
+    try {
+      // Save user info to Firestore
+      await firestore().collection('users').add({
+        firstName: FirstName,
+        lastName: LastName,
+      });
+  
+      // Navigate to the next screen with user info
+      navigation.navigate("EmailVerificationScreen");
+    } catch (error) {
+      console.error('Error saving user info:', error);
+    }
+  };
+  
 
   const handleImageUpload = async () => {
     try {
@@ -54,31 +68,27 @@ const UserInfoScreen: FC<IProps> = props => {
     button,
     buttonStyle,
     svgContainer,
-    image
+    image,
   } = styles;
   return (
     <KeyboardAwareScrollView style={container}>
       {!selectedImage && (
-      <View style={svgContainer}>
-        
-        
+        <View style={svgContainer}>
           <VectorImage
             source={require('../assets/images/tasks-boss-svgrepo-com.dark.svg')}
             style={svgStyle}
           />
-        
-      </View>)}
+        </View>
+      )}
 
       <View style={imageView}>
-      
         {selectedImage && selectedImage.path && (
-    <Image
-      source={{ uri: selectedImage.path }}
-      style={image}
-    />
-  )}
-  <TouchableOpacity>
-          <Text  onPress={handleImageUpload} style={imageView}>Upload Image</Text>
+          <Image source={{uri: selectedImage.path}} style={image} />
+        )}
+        <TouchableOpacity>
+          <Text onPress={handleImageUpload} style={imageView}>
+            Upload Image
+          </Text>
         </TouchableOpacity>
       </View>
       <View style={askView1}>
@@ -88,7 +98,7 @@ const UserInfoScreen: FC<IProps> = props => {
         <TextInput
           style={enterTextStyle}
           underlineColorAndroid="black"
-          onChangeText={text=>setFisrtName(text)}
+          onChangeText={text => setFisrtName(text)}
           value={FirstName}
         />
       </View>
@@ -96,31 +106,20 @@ const UserInfoScreen: FC<IProps> = props => {
         <Text style={subhead1}>LAST NAME</Text>
       </View>
       <View style={enterText}>
-        <TextInput style={enterTextStyle} 
-        onChangeText={text=>setLastName(text)}
-        value={LastName}
-        underlineColorAndroid="black" />
+        <TextInput
+          style={enterTextStyle}
+          onChangeText={text => setLastName(text)}
+          value={LastName}
+          underlineColorAndroid="black"
+        />
       </View>
-      
-      <TouchableOpacity
-  style={button}
-  onPress={() => {
-     
-    navigation.navigate('TabNav', {
-      screen: 'TaskViewScreen',
-      params: {
-        image,
-        FirstName,
-        LastName,
-      },
-    });
-  }}
- 
-  
->
-<Text style={buttonStyle}>Continue</Text>
-</TouchableOpacity>
 
+      <TouchableOpacity
+        style={button}
+        onPress={handleContinue}
+        >
+        <Text style={buttonStyle}>Continue</Text>
+      </TouchableOpacity>
     </KeyboardAwareScrollView>
   );
 };
@@ -141,14 +140,14 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     marginTop: 20,
-    borderRadius:60,
+    borderRadius: 60,
   },
   svgContainer: {
     marginTop: 40,
     borderColor: 'red',
     borderRadius: 65,
 
-    borderEndColor:'cyan',
+    borderEndColor: 'cyan',
     width: 130,
     height: 130,
     alignSelf: 'center',

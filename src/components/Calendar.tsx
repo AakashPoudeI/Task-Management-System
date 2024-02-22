@@ -42,19 +42,27 @@ const Calendar: FC<IProps> = ({onSelectDate, selected}) => {
 
   // ...
 
-  // get the dates from today to 10 days from now, format them as strings and store them in state
+  // get the dates from one week before today to 2 weeks from now, format them as strings and store them in state
   const getDates = () => {
     const _dates: Moment[] = [];
-    for (let i = 0; i < 10; i++) {
-      const date = moment().add(i, 'days');
-      _dates.push(date);
+    const today = moment();
+    const startDate = moment(today).subtract(6, 'days'); // Adjust to display 6 days before today
+    const endDate = moment(today).add(7, 'days'); // Adjust to display 7 days from today
+    
+    let currentDate = moment(startDate);
+    while (currentDate.isSameOrBefore(endDate, 'day')) {
+      _dates.push(moment(currentDate));
+      currentDate = currentDate.add(1, 'day');
     }
+    
     setDates(_dates);
   };
+  
 
-  useEffect(() => {
-    getDates();
-  }, []);
+useEffect(() => {
+  getDates();
+}, []);
+
 
   return (
     <>
@@ -67,7 +75,7 @@ const Calendar: FC<IProps> = ({onSelectDate, selected}) => {
         <View style={styles.scroll}>
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
+            showsHorizontalScrollIndicator={true}
             scrollEventThrottle={16}
             onScroll={e => setScrollPosition(e.nativeEvent.contentOffset.x)}>
             {dates.map((date, index) => (

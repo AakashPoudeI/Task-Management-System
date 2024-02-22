@@ -1,28 +1,26 @@
-import React, {FC} from 'react';
-import { View, StatusBar, Platform } from 'react-native';
+import React from 'react';
+import { View, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import AddTaskScreen from 'screens/AddTaskScreen';
 import TaskViewScreen from 'screens/TaskViewScreen';
-
-
-interface IProps {}
 
 /**
  * @author
  * @function @TabNav
  **/
 
-const TabNav: FC<IProps> = props => {
+const TabNav = () => {
   const Tab = createBottomTabNavigator();
   return (
     <>
-      {/* <StatusBar animated={true} backgroundColor="#5856D6" /> */}
       <Tab.Navigator
         initialRouteName='TaskViewScreen'
+        
         screenOptions={({ route }) => ({
           tabBarHideOnKeyboard: true,
           tabBarStyle: {
+            
             display: 'flex',
             position: 'absolute',
             bottom: 20,
@@ -69,7 +67,7 @@ const TabNav: FC<IProps> = props => {
         <Tab.Screen
           name="TaskViewScreen"
           component={TaskViewScreen}
-          options={{
+          options={{ 
             tabBarIcon: ({ focused }) => (
               <View
                 style={{
@@ -84,10 +82,9 @@ const TabNav: FC<IProps> = props => {
             ),
           }}
         />
-
       </Tab.Navigator>
     </>
-
   );
-}
- export default TabNav;
+};
+
+export default TabNav;

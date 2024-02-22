@@ -1,12 +1,7 @@
 
 import React, {FC} from 'react';
-import SignUpScreen from 'screens/SignUpScreen';
-import LoginEmailScreen from 'screens/LoginEmailScreen';
-import UserInfoScreen from 'screens/UserInfoScreen';
 import StackNav from 'navigation/StackNav';
-import TaskViewScreen from 'screens/TaskViewScreen';
 
-import AddTaskScreen from 'screens/AddTaskScreen';
 
 interface IProps {}
 
@@ -18,9 +13,12 @@ interface IProps {}
 
 const Root: FC<IProps> = props => {
  
-  return (
-    <StackNav/>
-  );
+  
+   
+    return(
+      <StackNav/>
+    )
+ 
 };
 
 

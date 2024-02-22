@@ -8,12 +8,13 @@ import {
   TextInput,
   Alert
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+
 import {WIDTH, HEIGHT} from 'utils/dimension';
 import auth from '@react-native-firebase/auth';
-import { useRoute } from '@react-navigation/native';
+
 import FeatherIcon from 'react-native-vector-icons/Feather'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import firestore from '@react-native-firebase/firestore';
 
 interface IProps {}
 
@@ -35,23 +36,38 @@ const LoginEmailScreen: FC<IProps> = () => {
 
   const handleLogin = async () => {
     console.log("Attempting login...");
-  
+    
     if (!email.trim()) {
       console.log("Email is empty. Showing alert.");
       Alert.alert("Please enter your email.");
       return;
     }
-  
+    
     if (!isEmailValid(email)) {
       console.log("Invalid email format. Showing alert.");
       Alert.alert("Invalid email address.");
       return;
     }
-  
+    
     try {
       // Attempt to sign in with the provided email and password
       console.log("Attempting Firebase authentication...");
       const userCredential = await auth().signInWithEmailAndPassword(email, password);
+      const userId = userCredential.user.uid;
+      
+      // Query the Firestore database to see if the user exists
+      const userSnapshot = await firestore()
+        .collection('users')
+        .where('email', '==', email)
+        .get();
+  
+      if (userSnapshot.empty) {
+        console.log("User does not exist in the database. Navigating to UserInfoScreen...");
+        navigation.navigate('UserInfoScreen', { userId });
+      } else {
+        console.log("User exists in the database. Navigating to TabNav...");
+        navigation.navigate('TabNav');
+      }
   
       // If successful, userCredential.user will contain the signed-in user information
       if (userCredential && userCredential.user) {
@@ -66,38 +82,19 @@ const LoginEmailScreen: FC<IProps> = () => {
       // If an error occurs, check the error code to determine the case
       console.log("Error during authentication:", error);
   
-      if (error.code === "auth/invalid-credential") {
-        // User not found, show an alert
-        console.log("User not found. Showing alert.");
-        Alert.alert(
-          "Authentication Failed",
-          "Either the email isn't registered or the password is incorrect",
-          [
-            {
-              text: "OK",
-              onPress: () => console.log("OK Pressed"),
-            },
-          ]
-        );
-      } else if (error.code === "auth/wrong-password") {
-        // Wrong password, show an alert
-        console.log("Wrong password. Showing alert.");
-        Alert.alert(
-          "Authentication Failed",
-          "Incorrect password. Please check your password and try again.",
-          [
-            {
-              text: "OK",
-              onPress: () => console.log("OK Pressed"),
-            },
-          ]
-        );
+      // Handle authentication errors
+      if (error.code === "auth/invalid-credential" || error.code === "auth/wrong-password") {
+        console.log("Invalid credentials. Showing alert.");
+        Alert.alert("Authentication Failed", "Invalid credentials. Please check your email and password.");
       } else {
         // Handle other errors
         console.log("Authentication error:", error);
       }
     }
   };
+  
+  
+  
   
 
 

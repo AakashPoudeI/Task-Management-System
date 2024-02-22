@@ -5,6 +5,7 @@ import VectorImage from 'react-native-vector-image';
 import Calendar from 'components/Calendar';
 import { useNavigation } from '@react-navigation/native';
 import { firebase } from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth'; // Import auth module from Firebase
 
 interface IProps {}
 
@@ -13,9 +14,15 @@ const TaskViewScreen: FC<IProps> = () => {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [list, setList] = useState<any[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null); // State to hold current user
 
   const handleSearchIconPress = () => {
     setIsSearchActive(!isSearchActive);
+  };
+
+  const handleSearchClose = () => {
+    setIsSearchActive(false);
+    setSearchText(''); // Clear search text when closing the search bar
   };
 
   const navigation = useNavigation<any>();
@@ -78,6 +85,36 @@ const TaskViewScreen: FC<IProps> = () => {
     fetchData(); // Fetch data when the component mounts
   }, []);
 
+  useEffect(() => {
+    // Add an authentication state listener
+    const unsubscribe = auth().onAuthStateChanged(user => {
+      if (user) {
+        // User is signed in
+        setCurrentUser(user);
+      } else {
+        // No user is signed in
+        setCurrentUser(null);
+      }
+    });
+
+    return () => unsubscribe(); // Unsubscribe from the auth state listener on unmount
+  }, []);
+
+  useEffect(() => {
+    // Fetch data when the component mounts and user is authenticated, pass selected date
+    if (currentUser) {
+      fetchData();
+    }
+  }, [currentUser, selected]);
+
+  const handleSignOut = () => {
+    Alert.alert("Signed-Out")
+    auth()
+      .signOut()
+      .then(() => console.log('User signed out!'))
+      .catch(error => console.error('Error signing out:', error));
+  };
+
   const fetchData = () => {
     try {
       const tasksRef = firebase
@@ -108,6 +145,26 @@ const TaskViewScreen: FC<IProps> = () => {
     }
   };
 
+  const getColorByDateDiff = (dueDate: string): string => {
+    const currentDate = new Date();
+    const parsedDueDate = new Date(dueDate);
+    const secondsDiff = dateDiffInSeconds(currentDate, parsedDueDate);
+  
+    if (secondsDiff < 0) {
+      return 'brown'; // Date has passed
+    } else if (secondsDiff <= 2 * 24 * 60 * 60) { // 2 days in seconds
+      return 'grey'; // Less than 2 days left
+    } else {
+      return 'purple'; // More than 3 days left
+    }
+};
+
+const dateDiffInSeconds = (date1: Date, date2: Date): number => {
+    const diffInMs = Math.abs(date2.getTime() - date1.getTime());
+    return Math.ceil(diffInMs / 1000); // Convert milliseconds to seconds
+};
+
+
   const {
     container,
     headerStyle,
@@ -130,6 +187,10 @@ const TaskViewScreen: FC<IProps> = () => {
   return (
     <ScrollView style={container}>
       <View style={headerStyle}>
+        {/* Sign-out button */}
+      <TouchableOpacity onPress={handleSignOut} style={iconContainer}>
+        <FeatherIcon name="log-out" style={iconStyle} />
+      </TouchableOpacity>
         {!isSearchActive && (
           <>
             <View style={svgContainer}>
@@ -144,57 +205,63 @@ const TaskViewScreen: FC<IProps> = () => {
           <TouchableOpacity onPress={handleSearchIconPress} style={iconContainer}>
             <FeatherIcon name="search" style={iconStyle} />
           </TouchableOpacity>
-        </View>
+        </View> 
         {isSearchActive && (
           <View style={searchContainer}>
             <TextInput
               style={textInputStyle}
               placeholder="Search..."
-              value={searchText}
+              value={searchText} 
               onChangeText={(text) => setSearchText(text)}
             />
+            <TouchableOpacity onPress={handleSearchClose}>
+              <FeatherIcon name="x-circle" style={[iconStyle, {fontSize:25,marginLeft:-42, color: 'black' }]} />
+            </TouchableOpacity>
           </View>
         )}
       </View>
 
       <Calendar onSelectDate={setSelected} selected={selected} />
-      
       {list.length === 0 ? (
-        <View style={{ alignItems: 'center', marginTop: 20 }}>
-          <Text>No tasks added</Text>
+  <View style={{ alignItems: 'center', marginTop: 20 }}>
+    <Text>No tasks added</Text>
+  </View>
+) : (
+  list
+  .filter((task) => task.title && task.title.includes(searchText.trim()))
+  .map((task) => (
+    <TouchableOpacity key={task.id} onPress={() => handleCardPress(task)}>
+        <View style={[card, { backgroundColor: getColorByDateDiff(task.selectedDate) }]}>
+          <View style={cardContent}>
+            <Text style={[cardText, { color: 'white', fontSize: 18, fontWeight: 'bold' }]}>
+              Heading: {task.title}
+            </Text>
+            
+            <Text style={[cardText, { color: 'white' }]}>
+              Description: {task.description}
+            </Text>
+            <Text style={[cardText, { color: 'white' }]}>
+              Selected Date: {task.selectedDate}
+            </Text>
+          </View>
+          <View style={buttonContainer}>
+            <TouchableOpacity style={updateButton} onPress={() => handleUpdate(task)}>
+              <Text style={buttonText}>Update</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={deleteButton} onPress={() => handleDelete(task.id)}>
+              <Text style={buttonText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      ) : (
-        list.map((task) => (
-          <TouchableOpacity key={task.id} onPress={() => handleCardPress(task)}>
-            <View style={[card, { backgroundColor: 'purple' }]}>
-              <View style={cardContent}>
-                <Text style={[cardText, { color: 'white', fontSize: 18, fontWeight: 'bold' }]}>
-                  Heading: {task.title}
-                </Text>
-                <Text style={[cardText, { color: 'white' }]}>
-                  Selected Date: {task.selectedDate}
-                </Text>
-                <Text style={[cardText, { color: 'white' }]}>
-                  Description: {task.description}
-                </Text>
-              </View>
-              <View style={buttonContainer}>
-                <TouchableOpacity style={updateButton} onPress={() => handleUpdate(task.id)}>
-                  <Text style={buttonText}>Update</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={deleteButton} onPress={() => handleDelete(task.id)}>
-                  <Text style={buttonText}>Delete</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </TouchableOpacity>
-        ))
-      )}
+      </TouchableOpacity>
+    ))
+)}
+
+
+      
     </ScrollView>
   );
 };
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -295,11 +362,10 @@ const styles = StyleSheet.create({
     width: '40%',
   },
   buttonText: {
-    color: 'white',
+    color: 'black',
     fontSize: 16,
     fontWeight: 'bold',
   },
 });
-
 
 export default TaskViewScreen;

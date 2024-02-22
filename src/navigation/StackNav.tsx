@@ -1,6 +1,6 @@
 import React, {FC} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createStackNavigator} from '@react-navigation/stack';
 import LoginEmailScreen from 'screens/LoginEmailScreen';
 import TaskDetailScreen from 'screens/TaskDetailScreen';
 
@@ -9,6 +9,9 @@ import UserInfoScreen from 'screens/UserInfoScreen';
 import TaskViewScreen from 'screens/TaskViewScreen';
 import AddTaskScreen from 'screens/AddTaskScreen';
 import TabNav from './TabNav';
+import AdminLoginScreen from 'screens/AdminLoginScreen';
+import AdminTaskScreen from 'screens/AdminTaskScreen';
+import EmailVerificationScreen from 'screens/EmailVerificationScreen';
 
 interface IProps {}
 
@@ -18,7 +21,7 @@ interface IProps {}
  **/
 
 const StackNav: FC<IProps> = props => {
-  const Stack = createNativeStackNavigator();
+  const Stack = createStackNavigator<any>();
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName='SignUpScreen'>
@@ -26,6 +29,27 @@ const StackNav: FC<IProps> = props => {
         <Stack.Screen
           name="SignUpScreen"
           component={SignUpScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="AdminLoginScreen"
+          component={AdminLoginScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+         <Stack.Screen
+          name="AdminTaskScreen"
+          component={AdminTaskScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="EmailVerificationScreen"
+          component={EmailVerificationScreen}
           options={{
             headerShown: false,
           }}
@@ -56,6 +80,7 @@ const StackNav: FC<IProps> = props => {
           name="TaskViewScreen"
           component={TaskViewScreen}
           options={{
+
             headerShown: false,
           }}
         />
